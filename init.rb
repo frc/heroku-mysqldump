@@ -152,7 +152,13 @@ private
         system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/master/srdb.class.php -o srdb.class.php}
         system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/master/srdb.cli.php -o srdb.cli.php}
 
-        search_and_replace_command = %{php srdb.cli.php -u #{database['user']} -p '' -h #{database['host']} -n #{database['database']} -s #{@@search} -r #{@@replace}}
+        search_and_replace_command = "php srdb.cli.php -u #{database['user']} "
+
+        unless ( database['password'].nil? )
+            search_and_replace_command += "-p#{database['password']} "
+        end
+
+        search_and_replace_command += "-h #{database['host']} -n #{database['database']} -s #{@@search} -r #{@@replace}}"
 
         puts "\nExecuting: #{search_and_replace_command}"
         unless ( system %{#{search_and_replace_command}} )
