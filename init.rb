@@ -158,7 +158,7 @@ private
             search_and_replace_command += "-p#{database['password']} "
         end
 
-        search_and_replace_command += "-h #{database['host']} -n #{database['database']} -s #{@@search} -r #{@@replace}}"
+        search_and_replace_command += "-h #{database['host']} -n #{database['database']} -s #{@@search} -r #{@@replace}"
 
         puts "\nExecuting: #{search_and_replace_command}"
         unless ( system %{#{search_and_replace_command}} )
