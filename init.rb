@@ -155,7 +155,7 @@ private
         search_and_replace_command = "php srdb.cli.php -u #{database['user']} "
 
         if ( database['password'].nil? )
-            search_and_replace_command += "-p'' "
+            search_and_replace_command += "-p '' "
         else
             search_and_replace_command += "-p#{database['password']} "
         end
