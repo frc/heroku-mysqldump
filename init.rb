@@ -52,7 +52,8 @@ private
             [ '--database', '-d', GetoptLong::REQUIRED_ARGUMENT ],
             [ '--host',     '-h', GetoptLong::REQUIRED_ARGUMENT ],
             [ '--search',   '-s', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--replace',  '-r', GetoptLong::REQUIRED_ARGUMENT ]
+            [ '--replace',  '-r', GetoptLong::REQUIRED_ARGUMENT ],
+            [ '--app',      '-a', GetoptLong::OPTIONAL_ARGUMENT ]
         )
 
         opts.each do |opt, arg|
