@@ -34,3 +34,11 @@ heroku cleardbdump:push -u root -d cleardbdump
 ```
 heroku cleardbdump:push -u root -d cleardbdump --search localhost:6666 --replace mysite.herokuapp.com
 ```
+
+## Notes
+
+In both operations (push and pull) you can specify --app <appname>. By default it tries to use the app defined in heroku remote.
+
+```
+heroku cleardbdump:pull -u root -d dumptest --app my-test-app
+```
