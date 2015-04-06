@@ -1,12 +1,12 @@
 require 'heroku/helpers'
 require 'heroku/command'
 require 'heroku/command/run'
-require 'getoptlong'
 require 'tmpdir'
+require 'getoptlong'
 
-class Heroku::Command::Cleardbdump < Heroku::Command::Run
+class Heroku::Command::Cleardb < Heroku::Command::Run
     @@local_database = {
-        'user'      => nil,
+        'user'      => 'root',
         'password'  => nil,
         'host'      => 'localhost',
         'database'  => nil,
@@ -23,73 +23,74 @@ class Heroku::Command::Cleardbdump < Heroku::Command::Run
     @@replace = nil
 
     def index
-        puts "TODO usage"
+        puts "Usage in https://github.com/josepfrantic/heroku-cleardbdump/blob/master/README.md"
+        exit
     end
 
     def pull
-        parse_local_database_parameters()
-
+        local_database_setup(ARGV)
         database_url = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
-        parse_cleardb_connection_parameters(database_url)
+        parse_mysql_dsn_string(database_url, @@cleardb_database)
 
         do_transfer(@@cleardb_database, @@local_database)
     end
 
     def push
-        parse_local_database_parameters()
-
+        local_database_setup(ARGV)
         database_url = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
-        parse_cleardb_connection_parameters(database_url)
+        parse_mysql_dsn_string(database_url, @@cleardb_database)
 
         do_transfer(@@local_database, @@cleardb_database)
     end
 
+    def dump
+        database_url = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
+        parse_mysql_dsn_string(database_url, @@cleardb_database)
+
+        Dir.mktmpdir do |dir|
+            Dir.chdir(dir) do
+                take_mysqldump(@@cleardb_database, true)
+            end
+        end
+    end
+
 private
-    def parse_local_database_parameters
+    def local_database_setup(arguments)
+        if ( arguments.count <= 1 )
+            puts 'Missing parameter: database name or full MySQL DSN'
+            exit
+        end
+
+        if /^mysql:/.match(arguments[1])
+            # Treat argument as MySQL DSN
+            parse_mysql_dsn_string(arguments[1], @@local_database)
+        else
+            # Treat argument as database name
+            @@local_database['database'] = arguments[1]
+        end
+
         opts = GetoptLong.new(
-            [ '--user',     '-u', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--password', '-p', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--database', '-d', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--host',     '-h', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--search',   '-s', GetoptLong::REQUIRED_ARGUMENT ],
-            [ '--replace',  '-r', GetoptLong::REQUIRED_ARGUMENT ],
+            [ '--search',   '-s', GetoptLong::OPTIONAL_ARGUMENT ],
+            [ '--replace',  '-r', GetoptLong::OPTIONAL_ARGUMENT ],
             [ '--app',      '-a', GetoptLong::OPTIONAL_ARGUMENT ]
         )
 
         opts.each do |opt, arg|
           case opt
-            when '--user'
-                @@local_database['user']      = arg
-            when '--password'
-                @@local_database['password']  = arg
-            when '--database'
-                @@local_database['database']  = arg
-            when '--host'
-                @@local_database['host']      = arg
             when '--search'
-                @@search                      = arg
+                @@search    = arg
             when '--replace'
-                @@replace                     = arg
+                @@replace   = arg
             end
-        end
-
-        if @@local_database['user'].nil?
-            puts "Missing parameter user".red
-            exit
-        end
-
-        if @@local_database['database'].nil?
-            puts "Missing parameter user".red
-            exit
         end
     end
 
-    def parse_cleardb_connection_parameters(database_url)
-        if /^mysql:\/\/(.+):(.+)@(.+)\/(.+)\?reconnect=true$/.match(database_url)
-            @@cleardb_database['user']      = $1
-            @@cleardb_database['password']  = $2
-            @@cleardb_database['host']      = $3
-            @@cleardb_database['database']  = $4
+    def parse_mysql_dsn_string(database_url, database)
+        if /^mysql:\/\/(.+):(.+)@(.+)\/(\w+)(\?reconnect=true)?$/.match(database_url)
+            database['user']      = $1
+            database['password']  = $2
+            database['host']      = $3
+            database['database']  = $4
         else
             puts "\nFailing to parse url".red
             exit
@@ -101,9 +102,7 @@ private
             puts "\nCreated temporary directory in: #{dir}"
 
             Dir.chdir(dir) do
-
-                take_mysqldump(from_db)
-
+                take_mysqldump(from_db, false)
                 import_to_mysql(to_db)
 
                 if ( @@search.nil? == false && @@replace.nil? == false )
@@ -115,19 +114,26 @@ private
         end
     end
 
-    def take_mysqldump(database)
+    def take_mysqldump(database, print_to_stdout)
         mysqldump_command = "mysqldump -u#{database['user']} "
 
         unless ( database['password'].nil? )
             mysqldump_command += "-p#{database['password']} "
         end
 
-        mysqldump_command += "-h#{database['host']} #{database['database']} > dump.sql"
+        mysqldump_command += "-h#{database['host']} #{database['database']} 2>/dev/null > dump.sql"
 
-        puts "\nExecuting: #{mysqldump_command}"
+        if ( print_to_stdout == false )
+            puts "\nExecuting: #{mysqldump_command}"
+        end
+
         unless ( system %{#{mysqldump_command}} )
             puts "Error executing command".red
             exit
+        end
+
+        if ( print_to_stdout == true )
+            system %{cat dump.sql}
         end
     end
 
@@ -184,13 +190,5 @@ class String
 
     def green
         colorize(32)
-    end
-
-    def yellow
-        colorize(33)
-    end
-
-    def pink
-        colorize(35)
     end
 end

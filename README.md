@@ -7,18 +7,20 @@ heroku plugins:install https://github.com/josepfrantic/heroku-cleardbdump
 
 ## Usage
 
+All commands accept Heroku's --app <heroku_application_name> convention
+
 ### ClearDB to local MySQL
 
 #### Basic usage
 
 ```
-heroku cleardbdump:pull -u root -d cleardbdump
+heroku cleardb:pull <local_database_name | MySQL DSN string>
 ```
 
 #### With Search and replace script
 
 ```
-heroku cleardbdump:pull -u root -d cleardbdump --search mysite.herokuapp.com --replace localhost:6666
+heroku cleardb:pull <local_database_name | MySQL DSN string> --search mysite.herokuapp.com --replace localhost:6666
 ```
 
 ### Local MySQL to ClearDB
@@ -26,19 +28,17 @@ heroku cleardbdump:pull -u root -d cleardbdump --search mysite.herokuapp.com --r
 #### Basic usage
 
 ```
-heroku cleardbdump:push -u root -d cleardbdump
+heroku cleardb:push <local_database_name | MySQL DSN string>
 ```
 
 #### With Search and replace script
 
 ```
-heroku cleardbdump:push -u root -d cleardbdump --search localhost:6666 --replace mysite.herokuapp.com
+heroku cleardb:push <local_database_name | MySQL DSN string> --search localhost:6666 --replace mysite.herokuapp.com
 ```
 
-## Notes
-
-In both operations (push and pull) you can specify --app <appname>. By default it tries to use the app defined in heroku remote.
+### Taking a database backup from Heroku
 
 ```
-heroku cleardbdump:pull -u root -d dumptest --app my-test-app
+heroku cleardb:dump > project_production_$(date +"%F_%T").sql
 ```
