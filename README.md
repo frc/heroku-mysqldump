@@ -7,7 +7,9 @@ heroku plugins:install https://github.com/josepfrantic/heroku-cleardbdump
 
 ## Usage
 
-All commands accept Heroku's --app <heroku_application_name> convention
+All commands accept Heroku's ```--app <heroku_application_name>``` convention
+
+**Note:** Results of cleardb:push and cleardb:pull commands are not reversible. Please be encouraged in taking a database backup when running cleardb:push on production environments.
 
 ### ClearDB to local MySQL
 
