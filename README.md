@@ -19,6 +19,13 @@ All commands accept Heroku's ```--app <heroku_application_name>``` convention
 heroku cleardb:pull <local_database_name | MySQL DSN string>
 ```
 
+#### Examples
+
+```
+heroku cleardb:pull test --app my-heroku-app
+heroku cleardb:pull mysql://foo:bar@localhost/test --app my-heroku-app
+```
+
 #### With Search and replace script
 
 ```
