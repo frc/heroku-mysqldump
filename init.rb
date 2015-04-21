@@ -30,6 +30,10 @@ class Heroku::Command::Cleardb < Heroku::Command::Run
     def pull
         local_database_setup(ARGV)
         database_url = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
+        if database_url.nil?
+            puts "CLEARDB_DATABASE_URL not defined".red
+            exit
+        end
         parse_mysql_dsn_string(database_url, @@cleardb_database)
 
         do_transfer(@@cleardb_database, @@local_database)
@@ -38,6 +42,10 @@ class Heroku::Command::Cleardb < Heroku::Command::Run
     def push
         local_database_setup(ARGV)
         database_url = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
+        if database_url.nil?
+            puts "CLEARDB_DATABASE_URL not defined".red
+            exit
+        end
         parse_mysql_dsn_string(database_url, @@cleardb_database)
 
         do_transfer(@@local_database, @@cleardb_database)
