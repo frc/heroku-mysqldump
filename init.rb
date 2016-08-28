@@ -4,7 +4,7 @@ require 'heroku/command/run'
 require 'tmpdir'
 require 'getoptlong'
 
-class Heroku::Command::Cleardb < Heroku::Command::Run
+class Heroku::Command::Mysql < Heroku::Command::Run
     @@local_database = {
         'user'      => 'root',
         'password'  => nil,
