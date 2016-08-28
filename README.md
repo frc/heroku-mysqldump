@@ -1,6 +1,6 @@
 # heroku-mysqldump
 
-Simple Heroku plugin to synchronize a Heroku remote MySQL database to a local MySQL database, and vice versa. Optional search and replace capabilities are included. Both ClearDB and JawsDB Heroku add-ons are supported.
+Simple plugin to synchronize a Heroku remote MySQL database to a local MySQL database, and vice versa. Optional search and replace capabilities are included and provided by [Search-Replace-DB](https://github.com/interconnectit/Search-Replace-DB). Both ClearDB and JawsDB Heroku add-ons are supported.
 
 ## Installation
 ```
