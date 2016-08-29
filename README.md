@@ -53,5 +53,7 @@ heroku mysql:push <local_database_name | MySQL DSN string> --search localhost:50
 ### Taking a database backup from Heroku
 
 ```
-heroku mysql:dump > project_production_$(date +"%F_%T").sql
+heroku mysql:dump > project_production_$(date +"%F_%H_%M_%S").sql
 ```
+
+**Note:** Make sure to check the backup since errors are silenced from the output.
