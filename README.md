@@ -53,7 +53,11 @@ heroku mysql:push <local_database_name | MySQL DSN string> --search localhost:50
 ### Taking a database backup from Heroku
 
 ```
-heroku mysql:dump > project_production_$(date +"%F_%H_%M_%S").sql
+heroku mysql:dump 2>/dev/null > project_production_$(date +"%F_%H%M").sql
 ```
 
 **Note:** Make sure to check the backup since errors are silenced from the output.
+
+**Note 2**: 2>/dev/null is used to discard STDERR stream (for example Heroku warnings) which would end up to the output and therefore break the actual MySQL dump file. Again, please do check the dump.
+
+**Note 3**: --search and --replace are not supported in mysql:dump. In such case, use mysql:pull (with search & replace) and manually run mysqldump locally afterwards.

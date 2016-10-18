@@ -33,7 +33,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
     def pull
         puts "Remote database (Heroku) to local database"
         local_database_setup(ARGV)
-        database_url = get_remote_database()
+        database_url = get_remote_database(true)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
             exit
@@ -50,7 +50,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
         return unless prompt == 'y'
 
         local_database_setup(ARGV)
-        database_url = get_remote_database()
+        database_url = get_remote_database(true)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
             exit
@@ -61,7 +61,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
     end
 
     def dump
-        database_url = get_remote_database()
+        database_url = get_remote_database(false)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
             exit
@@ -77,24 +77,24 @@ class Heroku::Command::Mysql < Heroku::Command::Run
 
 private
     # Get remote database url. Currently supported ClearDB and JawsDB
-    def get_remote_database
+    def get_remote_database(print_to_stdout)
         cleardb = api.get_config_vars(app).body["CLEARDB_DATABASE_URL"]
         jawsdb = api.get_config_vars(app).body["JAWSDB_URL"]
 
         if @@db == 'cleardb'
-            puts "Using ClearDB"
+            puts "Using ClearDB" if print_to_stdout
             return cleardb
         elsif @@db == 'jawsdb'
-            puts "Using JawsDB"
+            puts "Using JawsDB" if print_to_stdout
             return jawsdb
         elsif jawsdb && cleardb
-            puts "Warning! Both ClearDB and JawsDB seem to be defined. Please indicate which one to use with the --db parameter"
+            puts "Error. Both CLEARDB_DATABASE_URL and JAWSDB_URL config vars are found. Please indicate which database to use with the --db parameter (values accepted: cleardb or jawsdb)"
             return nil
         elsif cleardb
-            puts "Using ClearDB"
+            puts "Using ClearDB" if print_to_stdout
             return cleardb
         elsif jawsdb
-            puts "Using JawsDB"
+            puts "Using JawsDB" if print_to_stdout
             return jawsdb
         end
 
