@@ -210,8 +210,8 @@ private
     def run_search_and_replace(database)
         # Download Search and replace script
         puts "Downloading Search-Replace-DB files"
-        system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/master/srdb.class.php -o srdb.class.php}
-        system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/master/srdb.cli.php -o srdb.cli.php}
+        system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/f42c62c6427eba78f2ecb9e9f1c00afea0a835a8/srdb.class.php -o srdb.class.php}
+        system %{curl -fsS https://raw.githubusercontent.com/interconnectit/Search-Replace-DB/f42c62c6427eba78f2ecb9e9f1c00afea0a835a8/srdb.cli.php -o srdb.cli.php}
 
         search_and_replace_command = "php srdb.cli.php -u #{database['user']} "
 
