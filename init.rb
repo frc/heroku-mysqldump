@@ -33,6 +33,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
     def pull
         puts "Remote database (Heroku) to local database"
         local_database_setup(ARGV)
+        parse_arguments(ARGV)
         database_url = get_remote_database(true)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
@@ -50,6 +51,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
         return unless prompt == 'y'
 
         local_database_setup(ARGV)
+        parse_arguments(ARGV)
         database_url = get_remote_database(true)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
@@ -61,6 +63,7 @@ class Heroku::Command::Mysql < Heroku::Command::Run
     end
 
     def dump
+        parse_arguments(ARGV)
         database_url = get_remote_database(false)
         if database_url.nil?
             puts "Error: Heroku database URL not defined"
@@ -114,7 +117,9 @@ private
             # Treat argument as database name
             @@local_database['database'] = arguments[1]
         end
+    end
 
+    def parse_arguments(arguments)
         opts = GetoptLong.new(
             [ '--search',   '-s', GetoptLong::OPTIONAL_ARGUMENT ],
             [ '--replace',  '-r', GetoptLong::OPTIONAL_ARGUMENT ],
